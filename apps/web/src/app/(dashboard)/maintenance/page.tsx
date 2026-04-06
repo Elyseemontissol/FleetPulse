@@ -1,5 +1,6 @@
 'use client';
 
+import { AnimatedPage } from '@/components/animations/AnimatedPage';
 import { Header } from '@/components/layout/Header';
 import { Calendar, AlertTriangle, Clock, Wrench } from 'lucide-react';
 
@@ -18,7 +19,7 @@ const priorityColors: Record<string, string> = {
 
 export default function MaintenancePage() {
   return (
-    <div>
+    <AnimatedPage>
       <Header
         title="Preventive Maintenance"
         subtitle="PM schedules and upcoming services"
@@ -89,6 +90,6 @@ export default function MaintenancePage() {
           </div>
         </div>
       </div>
-    </div>
+    </AnimatedPage>
   );
 }

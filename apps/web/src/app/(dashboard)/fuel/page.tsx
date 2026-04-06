@@ -3,6 +3,10 @@
 import { Header } from '@/components/layout/Header';
 import { useSupabaseQuery } from '@/hooks/useSupabase';
 import { Plus, Fuel, TrendingDown, DollarSign, Loader2 } from 'lucide-react';
+import { AnimatedPage } from '@/components/animations/AnimatedPage';
+import { StaggerIn } from '@/components/animations/StaggerIn';
+import { CountUp } from '@/components/animations/CountUp';
+import { AnimatedTable } from '@/components/animations/AnimatedTable';
 
 export default function FuelPage(): React.JSX.Element {
   const { data: transactions, loading } = useSupabaseQuery<any[]>(
@@ -16,50 +20,52 @@ export default function FuelPage(): React.JSX.Element {
   const avgPrice = totalGallons > 0 ? totalCost / totalGallons : 0;
 
   return (
-    <div>
+    <AnimatedPage>
       <Header title="Fuel Management" subtitle={`${transactions?.length || 0} transactions`}
         actions={<button className="btn-primary"><Plus className="h-4 w-4 mr-2" />Add Transaction</button>}
       />
 
       <div className="p-6 space-y-6">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-          <div className="card flex items-center gap-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
-              <DollarSign className="h-5 w-5 text-blue-600" />
+        <StaggerIn selector=".fuel-kpi" stagger={0.1} y={25}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+            <div className="fuel-kpi card flex items-center gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
+                <DollarSign className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Total Cost</p>
+                <p className="text-xl font-bold text-gray-900"><CountUp end={totalCost} prefix="$" duration={1.5} /></p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-gray-500">Total Cost</p>
-              <p className="text-xl font-bold text-gray-900">${Math.round(totalCost).toLocaleString()}</p>
+            <div className="fuel-kpi card flex items-center gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
+                <Fuel className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Total Gallons</p>
+                <p className="text-xl font-bold text-gray-900"><CountUp end={totalGallons} duration={1.5} /></p>
+              </div>
+            </div>
+            <div className="fuel-kpi card flex items-center gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-100">
+                <TrendingDown className="h-5 w-5 text-yellow-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Transactions</p>
+                <p className="text-xl font-bold text-gray-900"><CountUp end={transactions?.length || 0} duration={1} /></p>
+              </div>
+            </div>
+            <div className="fuel-kpi card flex items-center gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
+                <DollarSign className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Avg $/Gallon</p>
+                <p className="text-xl font-bold text-gray-900"><CountUp end={avgPrice} prefix="$" decimals={2} duration={1.2} /></p>
+              </div>
             </div>
           </div>
-          <div className="card flex items-center gap-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
-              <Fuel className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Total Gallons</p>
-              <p className="text-xl font-bold text-gray-900">{Math.round(totalGallons).toLocaleString()}</p>
-            </div>
-          </div>
-          <div className="card flex items-center gap-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-100">
-              <TrendingDown className="h-5 w-5 text-yellow-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Transactions</p>
-              <p className="text-xl font-bold text-gray-900">{transactions?.length || 0}</p>
-            </div>
-          </div>
-          <div className="card flex items-center gap-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
-              <DollarSign className="h-5 w-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Avg $/Gallon</p>
-              <p className="text-xl font-bold text-gray-900">${avgPrice.toFixed(2)}</p>
-            </div>
-          </div>
-        </div>
+        </StaggerIn>
 
         <div className="card p-0 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
@@ -68,7 +74,7 @@ export default function FuelPage(): React.JSX.Element {
           {loading ? (
             <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-gray-400" /></div>
           ) : (
-            <table className="w-full text-sm">
+            <AnimatedTable loading={loading}><table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
                   <th className="px-4 py-3 text-left font-medium text-gray-500">Date</th>
@@ -95,10 +101,10 @@ export default function FuelPage(): React.JSX.Element {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></AnimatedTable>
           )}
         </div>
       </div>
-    </div>
+    </AnimatedPage>
   );
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { AnimatedPage } from '@/components/animations/AnimatedPage';
 import { Header } from '@/components/layout/Header';
 import { MapPin, Wifi, WifiOff } from 'lucide-react';
 

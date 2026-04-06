@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { AnimatedPage } from '@/components/animations/AnimatedPage';
 import { Header } from '@/components/layout/Header';
 import { BarChart3, DollarSign, Fuel, Car, ClipboardCheck, Clock } from 'lucide-react';
 
@@ -51,7 +52,7 @@ const reports = [
 
 export default function ReportsPage() {
   return (
-    <div>
+    <AnimatedPage>
       <Header title="Reports & Analytics" subtitle="Fleet performance insights" />
 
       <div className="p-6">
@@ -73,6 +74,6 @@ export default function ReportsPage() {
           ))}
         </div>
       </div>
-    </div>
+    </AnimatedPage>
   );
 }

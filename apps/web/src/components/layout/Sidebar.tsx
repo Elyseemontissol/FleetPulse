@@ -1,8 +1,10 @@
 'use client';
 
+import { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { clsx } from 'clsx';
+import gsap from 'gsap';
 import {
   LayoutDashboard, Car, Wrench, ClipboardCheck, Calendar,
   Fuel, MapPin, BarChart3, Settings, LogOut,
@@ -22,11 +24,26 @@ const navigation = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const sidebarRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo('.nav-item',
+        { opacity: 0, x: -20 },
+        { opacity: 1, x: 0, duration: 0.4, stagger: 0.04, ease: 'power2.out', delay: 0.2 },
+      );
+      gsap.fromTo('.sidebar-logo',
+        { opacity: 0, scale: 0.8 },
+        { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.5)' },
+      );
+    }, sidebarRef);
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <aside className="flex h-screen w-64 flex-col border-r border-gray-200 bg-white">
+    <aside ref={sidebarRef} className="flex h-screen w-64 flex-col border-r border-gray-200 bg-white">
       <div className="flex h-16 items-center gap-2 border-b border-gray-200 px-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white font-bold text-sm">
+        <div className="sidebar-logo flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white font-bold text-sm">
           FP
         </div>
         <span className="text-lg font-semibold text-gray-900">FleetPulse</span>
@@ -40,7 +57,7 @@ export function Sidebar() {
               key={item.name}
               href={item.href}
               className={clsx(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                'nav-item flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                 isActive
                   ? 'bg-brand-50 text-brand-700'
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',

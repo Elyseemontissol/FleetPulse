@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Header } from '@/components/layout/Header';
 import { Plus, Filter, Download, ChevronRight, Loader2 } from 'lucide-react';
 import { useSupabaseQuery } from '@/hooks/useSupabase';
+import { AnimatedPage } from '@/components/animations/AnimatedPage';
+import { AnimatedTable } from '@/components/animations/AnimatedTable';
 
 const statusColors: Record<string, string> = {
   active: 'badge-green', in_shop: 'badge-yellow', out_of_service: 'badge-red',
@@ -30,7 +32,7 @@ export default function AssetsPage(): React.JSX.Element {
   );
 
   return (
-    <div>
+    <AnimatedPage>
       <Header
         title="Assets"
         subtitle={`${count ?? '...'} total assets`}
@@ -64,7 +66,7 @@ export default function AssetsPage(): React.JSX.Element {
               <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
             </div>
           ) : (
-            <table className="w-full text-sm">
+            <AnimatedTable loading={loading}><table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
                   <th className="px-4 py-3 text-left font-medium text-gray-500">Asset #</th>
@@ -101,10 +103,10 @@ export default function AssetsPage(): React.JSX.Element {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></AnimatedTable>
           )}
         </div>
       </div>
-    </div>
+    </AnimatedPage>
   );
 }

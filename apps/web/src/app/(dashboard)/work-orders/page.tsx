@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Header } from '@/components/layout/Header';
 import { Plus, Filter, Loader2 } from 'lucide-react';
 import { useSupabaseQuery } from '@/hooks/useSupabase';
+import { AnimatedPage } from '@/components/animations/AnimatedPage';
+import { AnimatedTable } from '@/components/animations/AnimatedTable';
 
 const statusColors: Record<string, string> = {
   open: 'badge-gray', assigned: 'badge-blue', in_progress: 'badge-blue',
@@ -30,7 +32,7 @@ export default function WorkOrdersPage(): React.JSX.Element {
   );
 
   return (
-    <div>
+    <AnimatedPage>
       <Header
         title="Work Orders"
         subtitle={`${count ?? '...'} total work orders`}
@@ -59,7 +61,7 @@ export default function WorkOrdersPage(): React.JSX.Element {
               <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
             </div>
           ) : (
-            <table className="w-full text-sm">
+            <AnimatedTable loading={loading}><table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
                   <th className="px-4 py-3 text-left font-medium text-gray-500">WO #</th>
@@ -96,10 +98,10 @@ export default function WorkOrdersPage(): React.JSX.Element {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></AnimatedTable>
           )}
         </div>
       </div>
-    </div>
+    </AnimatedPage>
   );
 }

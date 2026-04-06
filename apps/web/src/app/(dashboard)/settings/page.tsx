@@ -1,12 +1,13 @@
 'use client';
 
+import { AnimatedPage } from '@/components/animations/AnimatedPage';
 import { Header } from '@/components/layout/Header';
 import { Users, Link2, Building, Shield } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SettingsPage() {
   return (
-    <div>
+    <AnimatedPage>
       <Header title="Settings" subtitle="System configuration" />
 
       <div className="p-6 space-y-6 max-w-4xl">
@@ -50,6 +51,6 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
-    </div>
+    </AnimatedPage>
   );
 }

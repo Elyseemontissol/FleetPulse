@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { AnimatedPage } from '@/components/animations/AnimatedPage';
 import { Header } from '@/components/layout/Header';
 import { Plus, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 
@@ -20,7 +21,7 @@ const sampleInspections = [
 
 export default function InspectionsPage() {
   return (
-    <div>
+    <AnimatedPage>
       <Header
         title="Inspections (DVIR)"
         subtitle="Driver Vehicle Inspection Reports"
@@ -96,6 +97,6 @@ export default function InspectionsPage() {
           </table>
         </div>
       </div>
-    </div>
+    </AnimatedPage>
   );
 }
