@@ -1,9 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import type { DivIcon } from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { useEffect, useRef, useCallback } from 'react';
 
 interface VehiclePosition {
   asset_id: string;
@@ -24,71 +21,6 @@ interface VehiclePosition {
   };
 }
 
-// Custom vehicle marker icons
-function createVehicleIcon(moving: boolean, idle: boolean): DivIcon {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const L = require('leaflet');
-  const color = moving ? '#16a34a' : idle ? '#d97706' : '#9ca3af';
-
-  return L.divIcon({
-    className: 'custom-vehicle-marker',
-    html: `
-      <div style="position:relative;width:32px;height:32px;">
-        <div style="
-          position:absolute;inset:0;
-          background:${color};
-          border-radius:50%;
-          opacity:0.2;
-          ${moving ? 'animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;' : ''}
-        "></div>
-        <div style="
-          position:absolute;inset:4px;
-          background:${color};
-          border:2px solid white;
-          border-radius:50%;
-          box-shadow:0 2px 6px rgba(0,0,0,0.3);
-        "></div>
-        ${moving ? `<div style="
-          position:absolute;top:-2px;right:-2px;
-          width:10px;height:10px;
-          background:#22c55e;
-          border:1.5px solid white;
-          border-radius:50%;
-        "></div>` : ''}
-      </div>
-    `,
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
-    popupAnchor: [0, -16],
-  });
-}
-
-function FlyToSelected({ selected, positions }: { selected: string | null; positions: VehiclePosition[] }): null {
-  const map = useMap();
-
-  useEffect(() => {
-    if (selected) {
-      const pos = positions.find(p => p.asset_id === selected);
-      if (pos) {
-        map.flyTo([pos.latitude, pos.longitude], 16, { duration: 0.8 });
-      }
-    }
-  }, [selected, positions, map]);
-
-  return null;
-}
-
-// Fix Leaflet default icon paths for Next.js
-if (typeof window !== 'undefined') {
-  const L = require('leaflet');
-  delete (L.Icon.Default.prototype as any)._getIconUrl;
-  L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-  });
-}
-
 interface FleetMapViewProps {
   positions: VehiclePosition[];
   selected: string | null;
@@ -96,80 +28,183 @@ interface FleetMapViewProps {
 }
 
 export default function FleetMapView({ positions, selected, onSelect }: FleetMapViewProps): React.JSX.Element {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const leafletMap = useRef<any>(null);
+  const markersRef = useRef<Map<string, any>>(new Map());
+
+  // Initialize map
+  useEffect(() => {
+    if (!mapRef.current || leafletMap.current) return;
+
+    let cancelled = false;
+
+    (async () => {
+      const L = (await import('leaflet')).default;
+      // @ts-ignore - CSS import handled by bundler
+      await import('leaflet/dist/leaflet.css');
+
+      if (cancelled || !mapRef.current) return;
+
+      const map = L.map(mapRef.current, {
+        center: [40.8688, -72.8788],
+        zoom: 14,
+        zoomControl: false,
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+      }).addTo(map);
+
+      L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+      leafletMap.current = map;
+
+      // Force a resize after mount
+      setTimeout(() => map.invalidateSize(), 100);
+    })();
+
+    return () => {
+      cancelled = true;
+      if (leafletMap.current) {
+        leafletMap.current.remove();
+        leafletMap.current = null;
+      }
+    };
+  }, []);
+
+  // Update markers when positions change
+  useEffect(() => {
+    if (!leafletMap.current) return;
+
+    (async () => {
+      const L = (await import('leaflet')).default;
+      const map = leafletMap.current;
+      if (!map) return;
+
+      const currentIds = new Set(positions.map(p => p.asset_id));
+
+      // Remove markers for vehicles no longer in the list
+      markersRef.current.forEach((marker, id) => {
+        if (!currentIds.has(id)) {
+          map.removeLayer(marker);
+          markersRef.current.delete(id);
+        }
+      });
+
+      // Add or update markers
+      positions.forEach((pos) => {
+        const isMoving = pos.ignition_on && pos.speed_mph > 0;
+        const isIdle = pos.ignition_on && pos.speed_mph === 0;
+        const color = isMoving ? '#16a34a' : isIdle ? '#d97706' : '#9ca3af';
+
+        const icon = L.divIcon({
+          className: '',
+          html: `
+            <div style="position:relative;width:28px;height:28px;">
+              <div style="
+                position:absolute;inset:0;
+                background:${color};
+                border-radius:50%;
+                opacity:0.25;
+                ${isMoving ? 'animation:fleetpulse-ping 1.5s cubic-bezier(0,0,0.2,1) infinite;' : ''}
+              "></div>
+              <div style="
+                position:absolute;inset:3px;
+                background:${color};
+                border:2px solid white;
+                border-radius:50%;
+                box-shadow:0 2px 6px rgba(0,0,0,0.3);
+              "></div>
+              ${isMoving ? `<div style="
+                position:absolute;top:-2px;right:-2px;
+                width:8px;height:8px;
+                background:#22c55e;
+                border:1.5px solid white;
+                border-radius:50%;
+              "></div>` : ''}
+            </div>
+          `,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14],
+          popupAnchor: [0, -14],
+        });
+
+        const popupContent = `
+          <div style="min-width:180px;font-family:system-ui,sans-serif;">
+            <div style="font-weight:600;font-size:14px;margin-bottom:2px;">
+              ${pos.asset?.asset_number || 'Unknown'}
+            </div>
+            <div style="font-size:12px;color:#6b7280;margin-bottom:8px;">
+              ${pos.asset?.year || ''} ${pos.asset?.make || ''} ${pos.asset?.model || ''}
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;font-size:12px;">
+              <div style="display:flex;justify-content:space-between;">
+                <span style="color:#9ca3af">Status</span>
+                <span style="font-weight:500;color:${isMoving ? '#16a34a' : isIdle ? '#d97706' : '#6b7280'}">
+                  ${isMoving ? `Moving ${pos.speed_mph} mph` : isIdle ? 'Idle' : 'Off'}
+                </span>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span style="color:#9ca3af">Heading</span>
+                <span>${pos.heading}&deg;</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span style="color:#9ca3af">Dept</span>
+                <span>${pos.asset?.assigned_department || '—'}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span style="color:#9ca3af">Location</span>
+                <span style="text-align:right;max-width:120px">${pos.address || '—'}</span>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const existing = markersRef.current.get(pos.asset_id);
+        if (existing) {
+          existing.setLatLng([pos.latitude, pos.longitude]);
+          existing.setIcon(icon);
+          existing.setPopupContent(popupContent);
+        } else {
+          const marker = L.marker([pos.latitude, pos.longitude], { icon })
+            .addTo(map)
+            .bindPopup(popupContent, { className: 'fleet-popup' })
+            .on('click', () => onSelect(pos.asset_id));
+          markersRef.current.set(pos.asset_id, marker);
+        }
+      });
+    })();
+  }, [positions, onSelect]);
+
+  // Fly to selected vehicle
+  useEffect(() => {
+    if (!leafletMap.current || !selected) return;
+    const pos = positions.find(p => p.asset_id === selected);
+    if (pos) {
+      leafletMap.current.flyTo([pos.latitude, pos.longitude], 16, { duration: 0.8 });
+      const marker = markersRef.current.get(selected);
+      if (marker) marker.openPopup();
+    }
+  }, [selected, positions]);
+
   return (
     <>
       <style>{`
-        @keyframes ping {
-          75%, 100% { transform: scale(2); opacity: 0; }
+        @keyframes fleetpulse-ping {
+          75%, 100% { transform: scale(2.2); opacity: 0; }
         }
-        .custom-vehicle-marker { background: none !important; border: none !important; }
-        .leaflet-popup-content-wrapper { border-radius: 12px !important; }
-        .leaflet-popup-content { margin: 12px 16px !important; }
+        .fleet-popup .leaflet-popup-content-wrapper {
+          border-radius: 12px !important;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+        }
+        .fleet-popup .leaflet-popup-content {
+          margin: 12px 16px !important;
+        }
+        .fleet-popup .leaflet-popup-tip {
+          box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+        }
       `}</style>
-      <MapContainer
-        center={[40.8688, -72.8788]}
-        zoom={14}
-        style={{ height: '100%', width: '100%' }}
-        zoomControl={false}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-
-        <FlyToSelected selected={selected} positions={positions} />
-
-        {positions.map((pos) => {
-          const isMoving = pos.ignition_on && pos.speed_mph > 0;
-          const isIdle = pos.ignition_on && pos.speed_mph === 0;
-          const icon = createVehicleIcon(isMoving, isIdle);
-
-          return (
-            <Marker
-              key={pos.asset_id}
-              position={[pos.latitude, pos.longitude]}
-              icon={icon}
-              eventHandlers={{
-                click: () => onSelect(pos.asset_id),
-              }}
-            >
-              <Popup>
-                <div style={{ minWidth: 180 }}>
-                  <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>
-                    {pos.asset?.asset_number}
-                  </div>
-                  <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8 }}>
-                    {pos.asset?.year} {pos.asset?.make} {pos.asset?.model}
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: '#9ca3af' }}>Status</span>
-                      <span style={{
-                        fontWeight: 500,
-                        color: isMoving ? '#16a34a' : isIdle ? '#d97706' : '#6b7280',
-                      }}>
-                        {isMoving ? `Moving ${pos.speed_mph} mph` : isIdle ? 'Idle' : 'Off'}
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: '#9ca3af' }}>Heading</span>
-                      <span>{pos.heading}&deg;</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: '#9ca3af' }}>Dept</span>
-                      <span>{pos.asset?.assigned_department || '—'}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: '#9ca3af' }}>Location</span>
-                      <span style={{ textAlign: 'right', maxWidth: 120 }}>{pos.address || '—'}</span>
-                    </div>
-                  </div>
-                </div>
-              </Popup>
-            </Marker>
-          );
-        })}
-      </MapContainer>
+      <div ref={mapRef} style={{ height: '100%', width: '100%' }} />
     </>
   );
 }
