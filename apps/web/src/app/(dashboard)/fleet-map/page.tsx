@@ -4,7 +4,7 @@ import { AnimatedPage } from '@/components/animations/AnimatedPage';
 import { Header } from '@/components/layout/Header';
 import { MapPin, Wifi, WifiOff } from 'lucide-react';
 
-export default function FleetMapPage() {
+export default function FleetMapPage(): React.JSX.Element {
   return (
     <div className="flex flex-col h-full">
       <Header title="Fleet Map" subtitle="Live vehicle positions" />

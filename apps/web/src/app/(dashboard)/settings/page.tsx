@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { Users, Link2, Building, Shield } from 'lucide-react';
 import Link from 'next/link';
 
-export default function SettingsPage() {
+export default function SettingsPage(): React.JSX.Element {
   return (
     <AnimatedPage>
       <Header title="Settings" subtitle="System configuration" />

@@ -7,7 +7,7 @@ import {
   MapPin, Calendar, User, Activity,
 } from 'lucide-react';
 
-export default function AssetDetailPage({ params }: { params: { id: string } }) {
+export default function AssetDetailPage({ params }: { params: { id: string } }): React.JSX.Element {
   // Placeholder - will be replaced with API calls
   const asset = {
     id: params.id,

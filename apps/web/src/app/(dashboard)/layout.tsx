@@ -5,7 +5,7 @@ export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
-}) {
+}): React.JSX.Element {
   return (
     <AuthGuard>
       <DashboardShell>{children}</DashboardShell>

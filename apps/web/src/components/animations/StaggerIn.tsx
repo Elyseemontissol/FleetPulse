@@ -21,7 +21,7 @@ export function StaggerIn({
   x = 0,
   duration = 0.5,
   delay = 0.1,
-}: StaggerInProps) {
+}: StaggerInProps): React.JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

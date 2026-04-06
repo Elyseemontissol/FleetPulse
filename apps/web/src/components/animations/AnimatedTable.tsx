@@ -8,7 +8,7 @@ interface AnimatedTableProps {
   loading?: boolean;
 }
 
-export function AnimatedTable({ children, loading }: AnimatedTableProps) {
+export function AnimatedTable({ children, loading }: AnimatedTableProps): React.JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

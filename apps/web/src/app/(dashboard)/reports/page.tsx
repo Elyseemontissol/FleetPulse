@@ -50,7 +50,7 @@ const reports = [
   },
 ];
 
-export default function ReportsPage() {
+export default function ReportsPage(): React.JSX.Element {
   return (
     <AnimatedPage>
       <Header title="Reports & Analytics" subtitle="Fleet performance insights" />

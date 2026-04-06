@@ -8,7 +8,7 @@ interface HeaderProps {
   actions?: React.ReactNode;
 }
 
-export function Header({ title, subtitle, actions }: HeaderProps) {
+export function Header({ title, subtitle, actions }: HeaderProps): React.JSX.Element {
   return (
     <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6">
       <div>

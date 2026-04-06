@@ -7,7 +7,7 @@ import { Header } from '@/components/layout/Header';
 import { ArrowLeft } from 'lucide-react';
 import { AssetTypes, AssetCategories, FuelTypes } from '@fleetpulse/shared';
 
-export default function NewAssetPage() {
+export default function NewAssetPage(): React.JSX.Element {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 

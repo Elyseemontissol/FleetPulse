@@ -3,7 +3,7 @@
 import { useRef, useEffect } from 'react';
 import gsap from 'gsap';
 
-export function AnimatedPage({ children }: { children: React.ReactNode }) {
+export function AnimatedPage({ children }: { children: React.ReactNode }): React.JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

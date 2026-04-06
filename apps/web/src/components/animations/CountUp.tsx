@@ -12,7 +12,7 @@ interface CountUpProps {
   className?: string;
 }
 
-export function CountUp({ end, duration = 1.2, prefix = '', suffix = '', decimals = 0, className }: CountUpProps) {
+export function CountUp({ end, duration = 1.2, prefix = '', suffix = '', decimals = 0, className }: CountUpProps): React.JSX.Element {
   const ref = useRef<HTMLSpanElement>(null);
   const [displayed, setDisplayed] = useState(0);
 

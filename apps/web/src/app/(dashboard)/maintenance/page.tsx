@@ -17,7 +17,7 @@ const priorityColors: Record<string, string> = {
   low: 'badge-green', normal: 'badge-gray', high: 'badge-yellow', critical: 'badge-red',
 };
 
-export default function MaintenancePage() {
+export default function MaintenancePage(): React.JSX.Element {
   return (
     <AnimatedPage>
       <Header

@@ -19,7 +19,7 @@ const sampleInspections = [
   { id: '5', asset: 'E-0001 John Deere 1025R', type: 'Monthly', inspector: 'Tom Brown', result: 'pass', status: 'reviewed', date: '2026-04-01 09:00' },
 ];
 
-export default function InspectionsPage() {
+export default function InspectionsPage(): React.JSX.Element {
   return (
     <AnimatedPage>
       <Header

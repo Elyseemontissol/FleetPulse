@@ -22,7 +22,7 @@ const navigation = [
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
-export function Sidebar() {
+export function Sidebar(): React.JSX.Element {
   const pathname = usePathname();
   const sidebarRef = useRef<HTMLElement>(null);
 
