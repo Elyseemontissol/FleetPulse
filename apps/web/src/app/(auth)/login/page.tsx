@@ -77,9 +77,8 @@ export default function LoginPage(): React.JSX.Element {
     setError('');
     setLoading(true);
 
-    gsap.to(formRef.current?.querySelector('button'), {
-      scale: 0.97, duration: 0.1, yoyo: true, repeat: 1,
-    });
+    const btn = formRef.current?.querySelector('button');
+    if (btn) gsap.to(btn, { scale: 0.97, duration: 0.1, yoyo: true, repeat: 1 });
 
     try {
       const supabase = createClient();
@@ -105,11 +104,17 @@ export default function LoginPage(): React.JSX.Element {
         .to(containerRef.current, { opacity: 0, duration: 0.4 });
     } catch (err: any) {
       setError(err.message || 'Login failed');
-      gsap.to(formRef.current, {
-        x: [-10, 10, -8, 8, -4, 4, 0],
-        duration: 0.5,
-        ease: 'power2.out',
-      });
+      if (formRef.current) {
+        gsap.to(formRef.current, {
+          keyframes: [
+            { x: -10, duration: 0.07 }, { x: 10, duration: 0.07 },
+            { x: -8, duration: 0.07 }, { x: 8, duration: 0.07 },
+            { x: -4, duration: 0.07 }, { x: 4, duration: 0.07 },
+            { x: 0, duration: 0.07 },
+          ],
+          ease: 'power2.out',
+        });
+      }
     } finally {
       setLoading(false);
     }
