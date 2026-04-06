@@ -1,0 +1,6 @@
+{
+  "installCommand": "corepack enable && pnpm install",
+  "buildCommand": "pnpm --filter @fleetpulse/shared build && pnpm --filter @fleetpulse/web build",
+  "outputDirectory": "apps/web/.next",
+  "framework": "nextjs"
+}
