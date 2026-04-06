@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import L from 'leaflet';
+import type { DivIcon } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 interface VehiclePosition {
@@ -25,9 +25,10 @@ interface VehiclePosition {
 }
 
 // Custom vehicle marker icons
-function createVehicleIcon(moving: boolean, idle: boolean): L.DivIcon {
+function createVehicleIcon(moving: boolean, idle: boolean): DivIcon {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const L = require('leaflet');
   const color = moving ? '#16a34a' : idle ? '#d97706' : '#9ca3af';
-  const pulse = moving ? 'animate-pulse' : '';
 
   return L.divIcon({
     className: 'custom-vehicle-marker',
@@ -75,6 +76,17 @@ function FlyToSelected({ selected, positions }: { selected: string | null; posit
   }, [selected, positions, map]);
 
   return null;
+}
+
+// Fix Leaflet default icon paths for Next.js
+if (typeof window !== 'undefined') {
+  const L = require('leaflet');
+  delete (L.Icon.Default.prototype as any)._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  });
 }
 
 interface FleetMapViewProps {
