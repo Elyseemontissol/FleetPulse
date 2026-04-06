@@ -97,36 +97,62 @@ export default function FleetMapView({ positions, selected, onSelect }: FleetMap
         const isIdle = pos.ignition_on && pos.speed_mph === 0;
         const color = isMoving ? '#16a34a' : isIdle ? '#d97706' : '#9ca3af';
 
+        const statusColor = isMoving ? '#16a34a' : isIdle ? '#d97706' : '#9ca3af';
+        const statusBorder = isMoving ? '#16a34a' : isIdle ? '#d97706' : '#d1d5db';
+        const rotation = pos.heading || 0;
+
+        // SVG car icon rotated to heading
+        const carSvg = `
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22"
+            style="transform:rotate(${rotation}deg);filter:drop-shadow(0 2px 3px rgba(0,0,0,0.3));"
+            fill="${statusColor}" stroke="white" stroke-width="0.8">
+            <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+          </svg>`;
+
         const icon = L.divIcon({
           className: '',
           html: `
-            <div style="position:relative;width:28px;height:28px;">
+            <div style="position:relative;width:40px;height:40px;display:flex;align-items:center;justify-content:center;">
               <div style="
                 position:absolute;inset:0;
-                background:${color};
+                background:${statusColor};
                 border-radius:50%;
-                opacity:0.25;
+                opacity:0.15;
                 ${isMoving ? 'animation:fleetpulse-ping 1.5s cubic-bezier(0,0,0.2,1) infinite;' : ''}
               "></div>
               <div style="
-                position:absolute;inset:3px;
-                background:${color};
-                border:2px solid white;
+                position:relative;
+                background:white;
+                border:2px solid ${statusBorder};
                 border-radius:50%;
-                box-shadow:0 2px 6px rgba(0,0,0,0.3);
-              "></div>
-              ${isMoving ? `<div style="
-                position:absolute;top:-2px;right:-2px;
-                width:8px;height:8px;
-                background:#22c55e;
-                border:1.5px solid white;
-                border-radius:50%;
-              "></div>` : ''}
+                width:36px;height:36px;
+                display:flex;align-items:center;justify-content:center;
+                box-shadow:0 2px 8px rgba(0,0,0,0.2);
+              ">
+                ${carSvg}
+              </div>
+              ${isMoving ? `
+                <div style="
+                  position:absolute;top:0;right:0;
+                  width:10px;height:10px;
+                  background:#22c55e;
+                  border:1.5px solid white;
+                  border-radius:50;
+                "></div>
+                <div style="
+                  position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);
+                  background:${statusColor};color:white;
+                  font-size:9px;font-weight:700;
+                  padding:1px 4px;border-radius:4px;
+                  white-space:nowrap;
+                  box-shadow:0 1px 3px rgba(0,0,0,0.2);
+                ">${pos.speed_mph}mph</div>
+              ` : ''}
             </div>
           `,
-          iconSize: [28, 28],
-          iconAnchor: [14, 14],
-          popupAnchor: [0, -14],
+          iconSize: [40, 40],
+          iconAnchor: [20, 20],
+          popupAnchor: [0, -20],
         });
 
         const popupContent = `
