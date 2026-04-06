@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "FleetPulse",
+    "slug": "fleetpulse",
+    "version": "0.1.0",
+    "scheme": "fleetpulse",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "backgroundColor": "#2563eb"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bsa.fleetpulse",
+      "infoPlist": {
+        "NSCameraUsageDescription": "FleetPulse needs camera access to take photos during inspections.",
+        "NSPhotoLibraryUsageDescription": "FleetPulse needs photo library access to attach inspection photos."
+      }
+    },
+    "android": {
+      "package": "com.bsa.fleetpulse",
+      "adaptiveIcon": {
+        "backgroundColor": "#2563eb"
+      },
+      "permissions": ["CAMERA"]
+    },
+    "plugins": [
+      "expo-camera",
+      "expo-image-picker",
+      "expo-secure-store",
+      "expo-router"
+    ]
+  }
+}

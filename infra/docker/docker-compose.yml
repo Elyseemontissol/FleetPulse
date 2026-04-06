@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # Local Supabase alternative: plain Postgres for development
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: fleetpulse
+      POSTGRES_USER: fleetpulse
+      POSTGRES_PASSWORD: fleetpulse_dev
+    ports:
+      - '54322:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../../supabase/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U fleetpulse']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # API server (development mode)
+  api:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile.api
+    ports:
+      - '3001:3001'
+    environment:
+      - API_PORT=3001
+      - SUPABASE_URL=http://postgres:5432
+      - SUPABASE_SERVICE_ROLE_KEY=dev-service-role-key
+      - SUPABASE_ANON_KEY=dev-anon-key
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # MinIO (S3-compatible storage for local dev)
+  minio:
+    image: minio/minio:latest
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    environment:
+      MINIO_ROOT_USER: fleetpulse
+      MINIO_ROOT_PASSWORD: fleetpulse_dev
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
+volumes:
+  pgdata:
+  minio_data:

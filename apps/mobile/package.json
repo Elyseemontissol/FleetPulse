@@ -1,0 +1,37 @@
+{
+  "name": "@fleetpulse/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "dev": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "build": "echo 'Mobile build via EAS'",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx",
+    "clean": "rm -rf .expo"
+  },
+  "dependencies": {
+    "@fleetpulse/shared": "workspace:*",
+    "@react-native-async-storage/async-storage": "^2.2.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "expo": "~54.0.33",
+    "expo-camera": "~17.0.10",
+    "expo-file-system": "~19.0.21",
+    "expo-image-picker": "~17.0.10",
+    "expo-notifications": "~0.32.16",
+    "expo-router": "~6.0.23",
+    "expo-secure-store": "~15.0.8",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-gesture-handler": "~2.28.0",
+    "react-native-safe-area-context": "5.6.2",
+    "react-native-screens": "~4.16.0",
+    "react-native-signature-capture": "^0.4.10"
+  },
+  "devDependencies": {
+    "@types/react": "~19.1.17",
+    "typescript": "^5.6.0"
+  }
+}
