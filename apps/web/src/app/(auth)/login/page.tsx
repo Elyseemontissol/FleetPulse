@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api-client';
+import { createClient } from '@/lib/supabase';
 import gsap from 'gsap';
 import {
   Car, Shield, Wrench, ClipboardCheck, MapPin,
@@ -82,13 +82,15 @@ export default function LoginPage(): React.JSX.Element {
     });
 
     try {
-      const result = await api.post<{
-        session: { access_token: string };
-        profile: { role: string };
-      }>('/auth/login', { email, password });
+      const supabase = createClient();
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-      api.setToken(result.session.access_token);
-      localStorage.setItem('fleetpulse_token', result.session.access_token);
+      if (authError) throw authError;
+
+      localStorage.setItem('fleetpulse_token', data.session.access_token);
 
       const tl = gsap.timeline({
         onComplete: () => router.push('/dashboard'),

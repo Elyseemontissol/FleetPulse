@@ -55,7 +55,9 @@ export function Sidebar() {
 
       <div className="border-t border-gray-200 p-3">
         <button
-          onClick={() => {
+          onClick={async () => {
+            const { createClient } = await import('@/lib/supabase');
+            await createClient().auth.signOut();
             localStorage.removeItem('fleetpulse_token');
             window.location.href = '/login';
           }}

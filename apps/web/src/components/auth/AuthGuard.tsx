@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api-client';
+import { createClient } from '@/lib/supabase';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -10,24 +10,27 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('fleetpulse_token');
+    const supabase = createClient();
 
-    if (!token) {
-      router.replace('/login');
-      return;
-    }
-
-    api.setToken(token);
-
-    api.get('/auth/me')
-      .then(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
         setAuthorized(true);
         setChecking(false);
-      })
-      .catch(() => {
-        localStorage.removeItem('fleetpulse_token');
+      } else {
         router.replace('/login');
-      });
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (!session) {
+          setAuthorized(false);
+          router.replace('/login');
+        }
+      },
+    );
+
+    return () => subscription.unsubscribe();
   }, [router]);
 
   if (checking) {
