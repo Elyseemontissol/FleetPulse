@@ -54,7 +54,13 @@ export function Sidebar() {
       </nav>
 
       <div className="border-t border-gray-200 p-3">
-        <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <button
+          onClick={() => {
+            localStorage.removeItem('fleetpulse_token');
+            window.location.href = '/login';
+          }}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+        >
           <LogOut className="h-5 w-5" />
           Sign Out
         </button>
